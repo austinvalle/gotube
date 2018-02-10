@@ -1,4 +1,4 @@
-package main
+package cli
 
 // Name of application
 const Name string = "gotube"

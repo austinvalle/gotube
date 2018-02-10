@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"flag"
@@ -14,7 +14,7 @@ const (
 
 // CLI is the command line object
 type CLI struct {
-	outStream, errStream io.Writer
+	OutStream, ErrStream io.Writer
 }
 
 // Run invokes the CLI with the given arguments.
@@ -28,7 +28,7 @@ func (cli *CLI) Run(args []string) int {
 	)
 
 	flags := flag.NewFlagSet(Name, flag.ContinueOnError)
-	flags.SetOutput(cli.errStream)
+	flags.SetOutput(cli.ErrStream)
 
 	flags.BoolVar(&audioFlag, "a", false, "download audio mp3 only")
 	flags.BoolVar(&skipMetaFlag, "s", false, "skip the metadata edit step")
