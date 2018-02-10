@@ -5,7 +5,7 @@
 	"showOutput": "never",
 	"tasks": [
 		{
-			"taskName": "build",
+			"taskName": "install",
 			"args": [ "-v", "./..."],
 			"isBuildCommand": true
 		},
