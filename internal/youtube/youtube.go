@@ -11,8 +11,8 @@ import (
 	"github.com/rylio/ytdl"
 )
 
-// DownloadVideo will download a youtube video based on the ID to the specified directory
-func DownloadVideo(videoID string, destDir string) {
+// DownloadMp3 will download a youtube mp3 based on the ID to the specified directory
+func DownloadMp3(videoID string, destDir string) (string, *ytdl.VideoInfo) {
 	if destDir == "" {
 		destDir = "."
 	}
@@ -24,12 +24,12 @@ func DownloadVideo(videoID string, destDir string) {
 	videoURL, _ := videoInfo.GetDownloadURL(format)
 	tempMp4Location := destDir + "/temp.mp4"
 	tempMp3Location := destDir + "/temp.mp3"
+	finalMp3Location := destDir + "/" + videoInfo.Title + ".mp3"
 
 	client := grab.NewClient()
 	req, _ := grab.NewRequest(tempMp4Location, videoURL.String())
 
 	resp := client.Do(req)
-	fmt.Printf("  %v\n", resp.HTTPResponse.Status)
 
 	t := time.NewTicker(500 * time.Millisecond)
 	defer t.Stop()
@@ -66,5 +66,7 @@ ProgressLoop:
 	}
 
 	os.Remove(tempMp4Location)
-	os.Rename(tempMp3Location, destDir+"/"+videoInfo.Title+".mp3")
+	os.Rename(tempMp3Location, finalMp3Location)
+
+	return finalMp3Location, videoInfo
 }
