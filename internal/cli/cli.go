@@ -1,10 +1,15 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 	"io"
+	"log"
+	"os"
 	"regexp"
+	"strings"
 
+	"github.com/bogem/id3v2"
 	"github.com/juju/gnuflag"
 	"github.com/moosebot/gotube/internal/youtube"
 )
@@ -42,21 +47,47 @@ func (cli *CLI) Run(args []string) int {
 		return ExitCodeError
 	}
 
-	r := regexp.MustCompile(youtubeURLRegex)
-
-	if r.MatchString(args[1]) == true {
-		youtubeID := r.FindAllStringSubmatch(args[1], -1)[0][1]
-
-		youtube.DownloadVideo(youtubeID, dir)
-	}
-
 	if versionFlag {
 		fmt.Println(Version)
 		return ExitCodeOK
 	}
 
-	if skipMetaFlag {
-		fmt.Println("skip metadata detected")
+	r := regexp.MustCompile(youtubeURLRegex)
+
+	if r.MatchString(args[1]) == true {
+		youtubeID := r.FindAllStringSubmatch(args[1], -1)[0][1]
+
+		mp3Location, videoInfo := youtube.DownloadMp3(youtubeID, dir)
+
+		tag, _ := id3v2.Open(mp3Location, id3v2.Options{Parse: true})
+
+		if skipMetaFlag {
+			return ExitCodeOK
+		}
+
+		reader := bufio.NewReader(os.Stdin)
+
+		fmt.Print("title (\"" + videoInfo.Title + "\"): ")
+		mp3Title, _ := reader.ReadString('\n')
+		if strings.TrimSpace(mp3Title) == "" {
+			mp3Title = videoInfo.Title
+		}
+		tag.SetTitle(mp3Title)
+
+		fmt.Print("artist (\"" + videoInfo.Author + "\"): ")
+		mp3Artist, _ := reader.ReadString('\n')
+		if strings.TrimSpace(mp3Artist) == "" {
+			mp3Artist = videoInfo.Author
+		}
+		tag.SetArtist(mp3Artist)
+
+		fmt.Print("album: ")
+		mp3Album, _ := reader.ReadString('\n')
+		tag.SetAlbum(mp3Album)
+
+		if err := tag.Save(); err != nil {
+			log.Fatal("Error while saving a tag: ", err)
+		}
 	}
 
 	return ExitCodeOK
