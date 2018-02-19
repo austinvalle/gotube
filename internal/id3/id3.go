@@ -24,18 +24,23 @@ func CollectMetadataFromUser(videoInfo *ytdl.VideoInfo) *Metadata {
 
 	fmt.Print("title (\"" + videoInfo.Title + "\"): ")
 	mp3Title, _ := reader.ReadString('\n')
-	if strings.TrimSpace(mp3Title) == "" {
+	mp3Title = strings.TrimSpace(mp3Title)
+
+	if mp3Title == "" {
 		mp3Title = videoInfo.Title
 	}
 
 	fmt.Print("artist (\"" + videoInfo.Author + "\"): ")
 	mp3Artist, _ := reader.ReadString('\n')
-	if strings.TrimSpace(mp3Artist) == "" {
+	mp3Artist = strings.TrimSpace(mp3Artist)
+
+	if mp3Artist == "" {
 		mp3Artist = videoInfo.Author
 	}
 
 	fmt.Print("album: ")
 	mp3Album, _ := reader.ReadString('\n')
+	mp3Album = strings.TrimSpace(mp3Album)
 
 	return &Metadata{Title: mp3Title, Artist: mp3Artist, Album: mp3Album}
 }
