@@ -1,6 +1,8 @@
 package youtube
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -22,8 +24,10 @@ func DownloadMp3(videoID string, destDir string) (string, *ytdl.VideoInfo) {
 	var format = videoInfo.Formats.Best(ytdl.FormatAudioEncodingKey)[0]
 
 	videoURL, _ := videoInfo.GetDownloadURL(format)
-	tempMp4Location := destDir + "/temp.mp4"
-	tempMp3Location := destDir + "/temp.mp3"
+
+	randomFileName := getRandomFileName()
+	tempMp4Location := destDir + "/" + randomFileName + ".mp4"
+	tempMp3Location := destDir + "/" + randomFileName + ".mp3"
 
 	client := grab.NewClient()
 	req, _ := grab.NewRequest(tempMp4Location, videoURL.String())
@@ -67,4 +71,11 @@ ProgressLoop:
 	os.Remove(tempMp4Location)
 
 	return tempMp3Location, videoInfo
+}
+
+func getRandomFileName() string {
+	randBytes := make([]byte, 16)
+	rand.Read(randBytes)
+
+	return hex.EncodeToString(randBytes)
 }
