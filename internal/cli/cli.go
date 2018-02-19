@@ -3,10 +3,8 @@ package cli
 import (
 	"fmt"
 	"io"
-	"log"
 	"regexp"
 
-	"github.com/bogem/id3v2"
 	"github.com/juju/gnuflag"
 	"github.com/moosebot/gotube/internal/id3"
 	"github.com/moosebot/gotube/internal/youtube"
@@ -57,25 +55,12 @@ func (cli *CLI) Run(args []string) int {
 
 		mp3Location, videoInfo := youtube.DownloadMp3(youtubeID, dir)
 
-		tag, err := id3v2.Open(mp3Location, id3v2.Options{Parse: true})
-
-		if err != nil {
-			log.Fatal("Error while initializing a tag: ", err)
-		}
-
 		if skipMetaFlag {
 			return ExitCodeOK
 		}
 
 		metadata := id3.CollectMetadataFromUser(videoInfo)
-
-		tag.SetTitle(metadata.Title)
-		tag.SetArtist(metadata.Artist)
-		tag.SetAlbum(metadata.Album)
-
-		if err = tag.Save(); err != nil {
-			log.Fatal("Error while saving a tag: ", err)
-		}
+		id3.SetMetadata(mp3Location, metadata)
 	}
 
 	return ExitCodeOK
