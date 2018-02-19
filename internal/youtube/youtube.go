@@ -24,7 +24,6 @@ func DownloadMp3(videoID string, destDir string) (string, *ytdl.VideoInfo) {
 	videoURL, _ := videoInfo.GetDownloadURL(format)
 	tempMp4Location := destDir + "/temp.mp4"
 	tempMp3Location := destDir + "/temp.mp3"
-	finalMp3Location := destDir + "/" + videoInfo.Title + ".mp3"
 
 	client := grab.NewClient()
 	req, _ := grab.NewRequest(tempMp4Location, videoURL.String())
@@ -66,7 +65,6 @@ ProgressLoop:
 	}
 
 	os.Remove(tempMp4Location)
-	os.Rename(tempMp3Location, finalMp3Location)
 
-	return finalMp3Location, videoInfo
+	return tempMp3Location, videoInfo
 }
