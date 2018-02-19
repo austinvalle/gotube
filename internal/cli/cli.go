@@ -11,6 +11,7 @@ import (
 	"github.com/juju/gnuflag"
 	"github.com/moosebot/gotube/internal/id3"
 	"github.com/moosebot/gotube/internal/youtube"
+	"github.com/rylio/ytdl"
 )
 
 // Exit codes are int values that represent an exit code for a particular error.
@@ -55,14 +56,21 @@ func (cli *CLI) Run(args []string) int {
 
 	if r.MatchString(args[1]) == true {
 		youtubeID := r.FindAllStringSubmatch(args[1], -1)[0][1]
+		videoInfo, _ := ytdl.GetVideoInfoFromID(youtubeID)
 
-		mp3Location, videoInfo := youtube.DownloadMp3(youtubeID, dir)
+		mp3LocationChannel := make(chan string)
+		metadataChannel := make(chan *id3.Metadata)
 
-		if skipMetaFlag {
-			return ExitCodeOK
-		}
+		go youtube.DownloadMp3(videoInfo, dir, mp3LocationChannel)
 
-		metadata := id3.CollectMetadataFromUser(videoInfo)
+		// if skipMetaFlag {
+		// 	return ExitCodeOK
+		// }
+
+		go id3.CollectMetadataFromUser(videoInfo, metadataChannel)
+
+		mp3Location := <-mp3LocationChannel
+		metadata := <-metadataChannel
 
 		finalLocation := filepath.Dir(mp3Location) + "/" + metadata.Title + ".mp3"
 

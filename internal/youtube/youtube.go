@@ -3,23 +3,19 @@ package youtube
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
-	"time"
 
 	"github.com/cavaliercoder/grab"
 	"github.com/rylio/ytdl"
 )
 
 // DownloadMp3 will download a youtube mp3 based on the ID to the specified directory
-func DownloadMp3(videoID string, destDir string) (string, *ytdl.VideoInfo) {
+func DownloadMp3(videoInfo *ytdl.VideoInfo, destDir string, channel chan string) {
 	if destDir == "" {
 		destDir = "."
 	}
-
-	videoInfo, _ := ytdl.GetVideoInfoFromID(videoID)
 
 	var format = videoInfo.Formats.Best(ytdl.FormatAudioEncodingKey)[0]
 
@@ -34,26 +30,8 @@ func DownloadMp3(videoID string, destDir string) (string, *ytdl.VideoInfo) {
 
 	resp := client.Do(req)
 
-	t := time.NewTicker(500 * time.Millisecond)
-	defer t.Stop()
-
-ProgressLoop:
-	for {
-		select {
-		case <-t.C:
-			fmt.Printf("  transferred %v / %v bytes (%.2f%%)\n",
-				resp.BytesComplete(),
-				resp.Size,
-				100*resp.Progress())
-
-		case <-resp.Done:
-			break ProgressLoop
-		}
-	}
-
 	if err := resp.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
-		os.Exit(1)
+		log.Fatal("Download failed: ", err)
 	}
 
 	var cmd = exec.Command("ffmpeg", "-i", tempMp4Location, "-q:a", "0", "-map", "a", tempMp3Location)
@@ -70,7 +48,7 @@ ProgressLoop:
 
 	os.Remove(tempMp4Location)
 
-	return tempMp3Location, videoInfo
+	channel <- tempMp3Location
 }
 
 func getRandomFileName() string {
