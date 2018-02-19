@@ -3,6 +3,9 @@ package cli
 import (
 	"fmt"
 	"io"
+	"log"
+	"os"
+	"path/filepath"
 	"regexp"
 
 	"github.com/juju/gnuflag"
@@ -60,7 +63,15 @@ func (cli *CLI) Run(args []string) int {
 		}
 
 		metadata := id3.CollectMetadataFromUser(videoInfo)
-		id3.SetMetadata(mp3Location, metadata)
+
+		finalLocation := filepath.Dir(mp3Location) + "/" + metadata.Title + ".mp3"
+
+		err := os.Rename(mp3Location, finalLocation)
+		if err != nil {
+			log.Fatal("Error while renaming the file: ", err)
+		}
+
+		id3.SetMetadata(finalLocation, metadata)
 	}
 
 	return ExitCodeOK
