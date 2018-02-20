@@ -21,6 +21,7 @@ const (
 )
 
 const youtubeURLRegex = `(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})`
+const seperatorsRegex = `[ &_=+:]`
 
 // CLI is the command line object
 type CLI struct {
@@ -72,15 +73,23 @@ func (cli *CLI) Run(args []string) int {
 		mp3Location := <-mp3LocationChannel
 		metadata := <-metadataChannel
 
-		finalLocation := filepath.Dir(mp3Location) + "/" + metadata.Title + ".mp3"
-
-		err := os.Rename(mp3Location, finalLocation)
-		if err != nil {
-			log.Fatal("Error while renaming the file: ", err)
-		}
-
+		finalLocation := renameMp3File(mp3Location, metadata)
 		id3.SetMetadata(finalLocation, metadata)
 	}
 
 	return ExitCodeOK
+}
+
+func renameMp3File(mp3Location string, metadata *id3.Metadata) string {
+	separators := regexp.MustCompile(seperatorsRegex)
+
+	filename := separators.ReplaceAllString(metadata.Title, " ")
+	finalLocation := filepath.Dir(mp3Location) + "/" + filename + ".mp3"
+
+	err := os.Rename(mp3Location, finalLocation)
+	if err != nil {
+		log.Fatal("Error while renaming the file: ", err)
+	}
+
+	return finalLocation
 }
