@@ -64,17 +64,18 @@ func (cli *CLI) Run(args []string) int {
 
 		go youtube.DownloadMp3(videoInfo, dir, mp3LocationChannel)
 
-		// if skipMetaFlag {
-		// 	return ExitCodeOK
-		// }
+		if !skipMetaFlag {
+			go id3.CollectMetadataFromUser(videoInfo, metadataChannel)
 
-		go id3.CollectMetadataFromUser(videoInfo, metadataChannel)
+			mp3Location := <-mp3LocationChannel
+			metadata := <-metadataChannel
 
-		mp3Location := <-mp3LocationChannel
-		metadata := <-metadataChannel
-
-		finalLocation := renameMp3File(mp3Location, metadata)
-		id3.SetMetadata(finalLocation, metadata)
+			finalLocation := renameMp3File(mp3Location, metadata)
+			id3.SetMetadata(finalLocation, metadata)
+		} else {
+			mp3Location := <-mp3LocationChannel
+			renameMp3File(mp3Location, &id3.Metadata{Title: videoInfo.Title})
+		}
 	}
 
 	return ExitCodeOK
