@@ -4,4 +4,4 @@ package cli
 const Name string = "gotube"
 
 // Version represents the current verion of gotube
-const Version string = "0.1.0"
+const Version string = "1.0.0"
