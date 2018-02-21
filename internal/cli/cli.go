@@ -56,6 +56,8 @@ func (cli *CLI) Run(args []string) int {
 	r := regexp.MustCompile(youtubeURLRegex)
 
 	if r.MatchString(args[1]) == true {
+		fmt.Print("\n")
+
 		youtubeID := r.FindAllStringSubmatch(args[1], -1)[0][1]
 		videoInfo, _ := ytdl.GetVideoInfoFromID(youtubeID)
 

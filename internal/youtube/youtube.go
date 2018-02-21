@@ -6,13 +6,20 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/cavaliercoder/grab"
 	"github.com/rylio/ytdl"
 )
 
 // DownloadMp3 will download a youtube mp3 based on the ID to the specified directory
 func DownloadMp3(videoInfo *ytdl.VideoInfo, destDir string) string {
+	s := spinner.New(spinner.CharSets[24], 150*time.Millisecond)
+	s.Suffix = " MP3 converting"
+	s.FinalMSG = "✔ MP3 conversion complete!\n\n"
+
+	s.Start()
 	if destDir == "" {
 		destDir = "."
 	}
@@ -47,6 +54,8 @@ func DownloadMp3(videoInfo *ytdl.VideoInfo, destDir string) string {
 	}
 
 	os.Remove(tempMp4Location)
+
+	s.Stop()
 
 	return tempMp3Location
 }
