@@ -59,21 +59,14 @@ func (cli *CLI) Run(args []string) int {
 		youtubeID := r.FindAllStringSubmatch(args[1], -1)[0][1]
 		videoInfo, _ := ytdl.GetVideoInfoFromID(youtubeID)
 
-		mp3LocationChannel := make(chan string)
-		metadataChannel := make(chan *id3.Metadata)
-
-		go youtube.DownloadMp3(videoInfo, dir, mp3LocationChannel)
+		mp3Location := youtube.DownloadMp3(videoInfo, dir)
 
 		if !skipMetaFlag {
-			go id3.CollectMetadataFromUser(videoInfo, metadataChannel)
-
-			mp3Location := <-mp3LocationChannel
-			metadata := <-metadataChannel
+			metadata := id3.CollectMetadataFromUser(videoInfo)
 
 			finalLocation := renameMp3File(mp3Location, metadata)
 			id3.SetMetadata(finalLocation, metadata)
 		} else {
-			mp3Location := <-mp3LocationChannel
 			renameMp3File(mp3Location, &id3.Metadata{Title: videoInfo.Title})
 		}
 	}

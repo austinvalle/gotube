@@ -19,7 +19,7 @@ type Metadata struct {
 }
 
 // CollectMetadataFromUser will prompt the user to input mp3 title, artist, and album
-func CollectMetadataFromUser(videoInfo *ytdl.VideoInfo, channel chan *Metadata) {
+func CollectMetadataFromUser(videoInfo *ytdl.VideoInfo) *Metadata {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("title (\"" + videoInfo.Title + "\"): ")
@@ -42,7 +42,7 @@ func CollectMetadataFromUser(videoInfo *ytdl.VideoInfo, channel chan *Metadata) 
 	mp3Album, _ := reader.ReadString('\n')
 	mp3Album = strings.TrimSpace(mp3Album)
 
-	channel <- &Metadata{Title: mp3Title, Artist: mp3Artist, Album: mp3Album}
+	return &Metadata{Title: mp3Title, Artist: mp3Artist, Album: mp3Album}
 }
 
 // SetMetadata will apply metadata to the mp3 file's id3 tag

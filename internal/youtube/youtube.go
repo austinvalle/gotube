@@ -12,7 +12,7 @@ import (
 )
 
 // DownloadMp3 will download a youtube mp3 based on the ID to the specified directory
-func DownloadMp3(videoInfo *ytdl.VideoInfo, destDir string, channel chan string) {
+func DownloadMp3(videoInfo *ytdl.VideoInfo, destDir string) string {
 	if destDir == "" {
 		destDir = "."
 	}
@@ -48,7 +48,7 @@ func DownloadMp3(videoInfo *ytdl.VideoInfo, destDir string, channel chan string)
 
 	os.Remove(tempMp4Location)
 
-	channel <- tempMp3Location
+	return tempMp3Location
 }
 
 func getRandomFileName() string {
