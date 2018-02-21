@@ -1,10 +1,6 @@
 # gotube
 
-utility for downloading youtube videos/audio and renaming metadata
-
-## Description
-
-## Usage
+golang CLI for downloading youtube videos/audio and renaming metadata
 
 ## Install
 
@@ -14,16 +10,31 @@ To install, use `go get`:
 $ go get -d github.com/moosebot/gotube
 ```
 
-## Contribution
+## Usage
 
-1. Fork ([https://github.com/moosebot/gotube/fork](https://github.com/moosebot/gotube/fork))
-1. Create a feature branch
-1. Commit your changes
-1. Rebase your local changes against the master branch
-1. Run test suite with the `go test ./...` command and confirm that it passes
-1. Run `gofmt -s`
-1. Create a new Pull Request
+```bash
+gotube [youtube url] [options]
+```
 
-## Author
+### Options
+- `-s` *default value: false*   - Skip metadata questions and uses defaults
+- `-d` *default value: ./*      - Sets the download directory for mp3
+- `-h` - Print out gotube help information
+- `-v` - Print out gotube CLI version
 
-[moosebot](https://github.com/moosebot)
+## Example
+
+#### Basic example
+```bash
+gotube https://www.youtube.com/watch?v=aatr_2MstrI
+```
+
+#### Example skipping metadata
+```bash
+gotube https://www.youtube.com/watch?v=aatr_2MstrI -s
+```
+
+#### Example setting download directory
+```bash
+gotube https://www.youtube.com/watch?v=aatr_2MstrI -d C:/Downloads
+```
